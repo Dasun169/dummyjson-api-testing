@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs 'Node18'
+    }
+
     environment {
         GITHUB_TOKEN = credentials('GITHUB_TOKEN')
     }

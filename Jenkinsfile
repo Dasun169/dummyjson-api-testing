@@ -14,18 +14,18 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'npm install -g newman newman-reporter-htmlextra'
+                bat 'npm install -g newman newman-reporter-htmlextra'
             }
         }
 
         stage('Run API Tests') {
             steps {
-                sh '''
-                newman run collections/DummyJSON.postman_collection.json \
-                -e environments/DummyJSON.postman_environment.json \
-                --env-var "access_token=$GITHUB_TOKEN" \
-                --reporters cli,htmlextra \
-                --reporter-htmlextra-export reports/api-test-report.html
+                bat '''
+                newman run Newman_Test.json ^
+                -e dummyJSON.postman_environment.json ^
+                --env-var "access_token=%GITHUB_TOKEN%" ^
+                --reporters cli,htmlextra ^
+                --reporter-htmlextra-export reports\\api-test-report.html
                 '''
             }
         }
@@ -36,14 +36,10 @@ pipeline {
             archiveArtifacts artifacts: 'reports/*.html', fingerprint: true
         }
         failure {
-            mail to: 'youremail@gmail.com',
-                 subject: "❌ API Tests Failed — Jenkins Build #${BUILD_NUMBER}",
-                 body: "Check the report in Jenkins -> Artifacts"
+            echo "❌ API Tests Failed — Check report in Artifacts"
         }
         success {
-            mail to: 'youremail@gmail.com',
-                 subject: "✔ API Tests Passed Successfully",
-                 body: "Great job! Automated API testing is working fine 🚀"
+            echo "✔ API Tests Passed Successfully 🚀"
         }
     }
 }

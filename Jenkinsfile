@@ -37,13 +37,39 @@ pipeline {
 
     post {
         always {
-            archiveArtifacts artifacts: 'reports/*.html', fingerprint: true
-        }
-        failure {
-            echo "❌ API Tests Failed — Check report in Artifacts"
+            archiveArtifacts artifacts: 'reports/**', fingerprint: true
         }
         success {
-            echo "✔ API Tests Passed Successfully 🚀"
+            emailext(
+                subject: "✔ API Test Passed - Build #${BUILD_NUMBER}",
+                body: """
+                <h2>🚀 API Test Execution Successful!</h2>
+                <p>Your DummyJSON API test suite completed successfully.</p>
+                <p><strong>Collection:</strong> 17 API Endpoints</p>
+                <p><strong>Test Cases:</strong> 87 Validations</p>
+                <p>✔ Quality Verified & Ready for Deployment</p>
+                <br/>
+                <p>📎 Full HTML test report is attached.</p>
+                """,
+                to: "www.dasun544@gmail.com",
+                mimeType: "text/html",
+                attachLog: false,
+                attachmentsPattern: "reports/api-test-report.html"
+            )
+        }
+        failure {
+            emailext(
+                subject: "❌ API Test Failed - Build #${BUILD_NUMBER}",
+                body: """
+                <h2>⚠ API Tests Failed</h2>
+                <p>One or more tests failed during execution.</p>
+                <p>Check the attached HTML report for details.</p>
+                """,
+                to: "www.dasun544@gmail.com",
+                mimeType: "text/html",
+                attachLog: false,
+                attachmentsPattern: "reports/api-test-report.html"
+            )
         }
     }
 }
